@@ -1,9 +1,8 @@
-{{- $fullName := printf "%s-writer" (include "qryn-all-in-one.fullname" .) -}}
 {{ if .Values.writer.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $fullName }}
+  name: {{ include "qryn-all-in-one.fullname" . }}-writer
   labels:
     app: qryn-writer
   {{- include "qryn-all-in-one.labels" . | nindent 4 }}
@@ -21,7 +20,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $fullName }}
+  name: {{ include "qryn-all-in-one.fullname" . }}-writer
   labels:
     app: qryn-writer
     k8slens-edit-resource-version: v1
@@ -80,7 +79,7 @@ spec:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ $fullName }}
+  name: {{ include "qryn-all-in-one.fullname" . }}-writer
   labels:
     io.metrico.service: qryn-reader
     k8slens-edit-resource-version: v1

@@ -1,6 +1,5 @@
 {{- if .Values.writer.enabled -}}
 {{- if .Values.writer.ingress.enabled -}}
-{{- $fullName := printf "%s-writer" (include "qryn-all-in-one.fullname" .) -}}
 {{- if and .Values.reader.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
   {{- if not (hasKey .Values.reader.ingress.annotations "kubernetes.io/ingress.class") }}
   {{- $_ := set .Values.reader.ingress.annotations "kubernetes.io/ingress.class" .Values.reader.ingress.className}}
@@ -15,7 +14,7 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ include "qryn-all-in-one.fullname" . }}-writer
   labels:
     {{- include "qryn-all-in-one.labels" . | nindent 4 }}
   {{- with .Values.writer.ingress.annotations }}
@@ -46,7 +45,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ $fullName }}
+                name: {{ include "qryn-all-in-one.fullname" . }}-writer
                 port:
                   number: {{ $port }}
     {{- end }}
