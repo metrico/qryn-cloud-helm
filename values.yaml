@@ -87,19 +87,10 @@ writer:
 ctrl:
   labels: []
   enabled: true
-  ports:
-    - name: http
-      port: 8080
-      protocol: TCP
-      targetPort: 8080
-  qrynCtrl:
-    image:
-      repository: qxip/qryn-ctrl
-      tag: 0.1.13
-    imagePullPolicy: IfNotPresent
+  image:
+    repository: qxip/qryn-ctrl
+    tag: 0.1.13
+  imagePullPolicy: IfNotPresent
   replicas: 1
   revisionHistoryLimit: 10
   type: ClusterIP
-
-
-

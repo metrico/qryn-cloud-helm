@@ -1,8 +1,7 @@
 # Installation of the Qryn deployment
 
-1. Copy the code
-2. Create namespace in the kubernetes cluster you want to use: `kubectl create namespace qryn`
-3. Create docker registry secret yaml to pull docker images
+1. Create namespace in the kubernetes cluster you want to use: `kubectl create namespace qryn`
+2. Create docker registry secret yaml to pull docker images
 ```
 cat <<EOR >docker-registry-secret.yaml
 apiVersion: v1
@@ -25,12 +24,12 @@ EOF
 ))
 EOR
 ```
-4. Make the kubectl secret in the qryn namespace to reach the private docker registry as 
+3. Make the kubectl secret in the qryn namespace to reach the private docker registry as 
 https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 ```
 kubectl apply -f docker-registry-secret.yaml
 ``` 
-5. Create `values.yaml` to override the needed parameters. 
+4. Create `values.yaml` to override the needed parameters. 
 Please take a look to the [configuration](#configuration-options). Some of the parameters are required to override.
 5. Install helmchart
 ```
@@ -202,12 +201,8 @@ The required options are marked **bold**
 | writer.type                                          | The type of deployment for the writer.                             | ClusterIP                  |
 | ctrl.labels                                          | Additional labels for the qryn-ctrl deployment.                    | []                         |
 | ctrl.enabled                                         | Whether to enable the qryn-ctrl deployment.                        | True                       |
-| ctrl.ports[0].name                                   | The name of the first port in the qryn-ctrl deployment.            | http                       |
-| ctrl.ports[0].port                                   | The port number of the first port in the qryn-ctrl deployment.     | 8080                       |
-| ctrl.ports[0].protocol                               | The protocol of the first port in the qryn-ctrl deployment.        | TCP                        |
-| ctrl.ports[0].targetPort                             | The target port of the first port in the qryn-ctrl deployment.     | 8080                       |
-| ctrl.qrynCtrl.image.repository                       | The repository for the qryn-ctrl image.                            | qxip/qryn-ctrl             |
-| ctrl.qrynCtrl.imagePullPolicy                        | Whether to pull the image for the qryn-ctrl.                       | IfNotPresent               |
+| ctrl.image.repository                                | The repository for the qryn-ctrl image.                            | qxip/qryn-ctrl             |
+| ctrl.imagePullPolicy                                 | Whether to pull the image for the qryn-ctrl.                       | IfNotPresent               |
 | ctrl.replicas                                        | The number of replica sets for the qryn-ctrl.                      | 1                          |
 | ctrl.revisionHistoryLimit                            | The number of history revisions for the qryn-ctrl.                 | 10                         |
 | ctrl.type                                            | The type of deployment for the qryn-ctrl.                          | ClusterIP                  |

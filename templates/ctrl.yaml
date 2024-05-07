@@ -12,7 +12,10 @@ spec:
     app: qryn-ctrl
   {{- include "qryn-all-in-one.selectorLabels" . | nindent 4 }}
   ports:
-	{{- .Values.ctrl.ports | toYaml | nindent 2 }}
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -47,9 +50,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "qryn-all-in-one.fullname" . }}-qryn
-          image: {{ .Values.ctrl.qrynCtrl.image.repository }}:{{ .Values.ctrl.qrynCtrl.image.tag
+          image: {{ .Values.ctrl.image.repository }}:{{ .Values.ctrl.image.tag
           | default .Chart.AppVersion }}
-          imagePullPolicy: {{ .Values.ctrl.qrynCtrl.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.ctrl.imagePullPolicy }}
           name: qryn-ctrl
           ports:
             - containerPort: 8080
