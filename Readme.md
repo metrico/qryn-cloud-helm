@@ -1,4 +1,23 @@
-# Installation of the Qryn deployment
+# Helm Chart for qryn-cloud
+<a href="https://qryn.dev" target="_blank">
+<img src='https://user-images.githubusercontent.com/1423657/218816262-e0e8d7ad-44d0-4a7d-9497-0d383ed78b83.png' style="margin-left:-10px" width=150/>
+
+## Overview
+This Helm chart provides Kubernetes deployment configurations for [qryn-cloud](https://github.com/metrico) a polyglot, lighweight, multi-standard observability framework for Logs, Metrics and Traces, designed to be drop-in compatible with Loki, Prometheus, Tempo and Opentelemetry.
+
+## Prerequisites
+- Kubernetes 1.19+
+- Helm 3.7+
+
+## Get Repository Info
+
+```bash
+helm repo add qryn-helm https://metrico.github.io/qryn-cloud-helm/
+helm repo update
+```
+
+
+# Installation
 
 1. Create namespace in the kubernetes cluster you want to use: `kubectl create namespace qryn`
 2. Create docker registry secret yaml to pull docker images
