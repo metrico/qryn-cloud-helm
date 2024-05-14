@@ -187,6 +187,9 @@ The required options are marked **bold**
 | reader.ingress.hosts                                 | The list of hostnames for the reader's ingress.                    | ['qryn-reader.local.qryn'] |
 | reader.labels                                        | Additional labels for the reader deployment.                       | []                         |
 | reader.podAnnotations                                | Additional pod annotations for the reader deployment.              | []                         |
+| reader.nodeSelector                                  | Configure nodeSelector for reader deployment.                      | []                         |       
+| reader.tolerations                                   | Configure tolerations for reader deployment.                       | []                         | 
+| reader.affinity                                      | Configure affinity for reader deployment.                          | {}                         | 
 | reader.enabled                                       | Whether to enable the reader deployment.                           | True                       |
 | reader.env.qrynHttpSettingsPort                      | The port for the qryn reader HTTP endpoint.                        | 3200                       |
 | reader.image.repository                              | The repository for the reader image.                               | qxip/qryn-go-cloud         |
@@ -201,6 +204,9 @@ The required options are marked **bold**
 | reader.type                                          | The type of deployment for the reader.                             | ClusterIP                  |
 | writer.labels                                        | Additional labels for the writer deployment.                       | []                         |
 | writer.podAnnotations                                | Additional pod annotations for the writer deployment.              | []                         |
+| writer.nodeSelector                                  | Configure nodeSelector for writer deployment.                      | []                         |       
+| writer.tolerations                                   | Configure tolerations for writer deployment.                       | []                         | 
+| writer.affinity                                      | Configure affinity for writer deployment.                          | {}                         |
 | writer.enabled                                       | Whether to enable the writer deployment.                           | True                       |
 | writer.ingress.enabled                               | Whether to enable ingress for the writer.                          | True                       |
 | writer.ingress.hosts                                 | The list of hostnames for the writer's ingress.                    | ['qryn-writer.local.qryn'] |
@@ -222,6 +228,9 @@ The required options are marked **bold**
 | writer.type                                          | The type of deployment for the writer.                             | ClusterIP                  |
 | ctrl.labels                                          | Additional labels for the qryn-ctrl deployment.                    | []                         |
 | ctrl.podAnnotations                                  | Additional pod annotations for the ctrl deployment.                | []                         |
+| ctrl.nodeSelector                                    | Configure nodeSelector for ctrl deployment.                        | []                         |       
+| ctrl.tolerations                                     | Configure tolerations for ctrl deployment.                         | []                         | 
+| ctrl.affinity                                        | Configure affinity for ctrl deployment.                            | {}                         | 
 | ctrl.enabled                                         | Whether to enable the qryn-ctrl deployment.                        | True                       |
 | ctrl.image.repository                                | The repository for the qryn-ctrl image.                            | qxip/qryn-ctrl             |
 | ctrl.imagePullPolicy                                 | Whether to pull the image for the qryn-ctrl.                       | IfNotPresent               |
