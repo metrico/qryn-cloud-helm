@@ -3,7 +3,10 @@ kind: ConfigMap
 metadata:
   name: {{ include "qryn-all-in-one.fullname" . }}-qryn
   labels:
-    k8slens-edit-resource-version: v1
   {{- include "qryn-all-in-one.labels" . | nindent 4 }}
+  {{- with .Values.qryn.podAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
 data:
-  {{- .Values.qryn | toYaml | nindent 2}}
+  {{- .Values.qryn.data | toYaml | nindent 2}}

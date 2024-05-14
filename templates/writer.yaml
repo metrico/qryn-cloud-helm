@@ -4,12 +4,12 @@ kind: Service
 metadata:
   name: {{ include "qryn-all-in-one.fullname" . }}-writer
   labels:
-    app: qryn-writer
+    io.metrico.service: qryn-writer
   {{- include "qryn-all-in-one.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.writer.type }}
   selector:
-    app: qryn-writer
+    io.metrico.service: qryn-writer
   {{- include "qryn-all-in-one.selectorLabels" . | nindent 4 }}
   ports:
     - port: {{.Values.writer.env.qrynHttpSettingsPort }}
@@ -22,21 +22,24 @@ kind: Deployment
 metadata:
   name: {{ include "qryn-all-in-one.fullname" . }}-writer
   labels:
-    app: qryn-writer
-    k8slens-edit-resource-version: v1
+    io.metrico.service: qryn-writer
   {{- include "qryn-all-in-one.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.writer.replicas }}
   revisionHistoryLimit: {{ .Values.writer.revisionHistoryLimit }}
   selector:
     matchLabels:
-      app: qryn-writer
+      io.metrico.service: qryn-writer
     {{- include "qryn-all-in-one.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: qryn-writer
+        io.metrico.service: qryn-writer
       {{- include "qryn-all-in-one.selectorLabels" . | nindent 8 }}
+      {{- with .Values.writer.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       containers:
         - command:
@@ -51,8 +54,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "qryn-all-in-one.fullname" . }}-qryn
-          image: {{ .Values.writer.image.repository }}:{{ .Values.writer.image.tag
-          | default .Chart.AppVersion }}
+          image: {{ .Values.writer.image.repository }}:{{ .Values.writer.image.tag | default .Chart.AppVersion }}
           imagePullPolicy: {{ .Values.writer.imagePullPolicy }}
           name: qryn-writer
           ports:
@@ -82,7 +84,6 @@ metadata:
   name: {{ include "qryn-all-in-one.fullname" . }}-writer
   labels:
     io.metrico.service: qryn-reader
-    k8slens-edit-resource-version: v1
     {{- include "qryn-all-in-one.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:

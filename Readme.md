@@ -160,24 +160,24 @@ The required options are marked **bold**
 | Configuration                                        | Description                                                        | Default Value              |
 |------------------------------------------------------|--------------------------------------------------------------------|----------------------------|
 | kubernetesClusterDomain                              | The domain to use for Kubernetes cluster.                          | cluster.local              |
-| namespace.name                                       | The namespace to deploy the qryn application.                      | qryn                       | 
 | nameOverride                                         | A string to partially replace the name of the qryn deployment.     | qryn                       |
-| qryn.QRYN_LOG_SETTINGS_LEVEL                         | The log level for qryn.                                            | debug                      |
-| qryn.QRYN_LOG_SETTINGS_STDOUT                        | Whether to log to stdout.                                          | true                       |
-| qryn.QRYN_LOG_SETTINGS_SYSLOG                        | Whether to log to syslog.                                          | true                       |
-| qryn.QRYN_MULTITENANCE_SETTINGS_ENABLED              | Whether to enable multi-tenancy.                                   | true                       |
-| qryn.QRYN_SYSTEM_SETTINGS_DB_TIMER                   | The timeout between two subsequent inserts into the database (sec) | 1                          |
-| qryn.QRYN_SYSTEM_SETTINGS_DYNAMIC_DATABASES          | Whether to enable X-CH-DSN header controlled databases.            | false                      |
-| qryn.QRYN_SYSTEM_SETTINGS_NO_FORCE_ROTATION          | Whether to disable forced rotation (not used).                     | true                       |
-| qryn.QRYN_SYSTEM_SETTINGS_QUERY_STATS                | Whether to enable query statistics.                                | true                       |
-| qryn.QRYNCLOUD_LICENSE                               | The license key for qrynCloud.                                     | XXXX                       |
-| **qryn.QRYN_DATABASE_DATA_0_NODE**                   | The node for the qryn database.                                    | clickhouse1                |
-| **qryn.QRYN_DATABASE_DATA_0_USER**                   | The user for the qryn database.                                    | default                    |
-| **qryn.QRYN_DATABASE_DATA_0_PASS**                   | The password for the qryn database.                                |                            |
-| **qryn.QRYN_DATABASE_DATA_0_HOST**                   | The host for the qryn database.                                    | localhost                  |
-| **qryn.QRYN_DATABASE_DATA_0_NAME**                   | The name for the qryn database.                                    | qryn                       |
-| **qryn.QRYN_DATABASE_DATA_0_PORT**                   | The port for the qryn database.                                    | 9000                       |
-| **qryn.QRYN_DATABASE_DATA_0_SECURE**                 | Whether to use secure connection for the qryn database.            | false                      |
+| qryn.podAnnotations                                  | Additional pod annotations for the configmap.                      | []                         |
+| qryn.data.QRYN_LOG_SETTINGS_LEVEL                    | The log level for qryn.                                            | debug                      |
+| qryn.data.QRYN_LOG_SETTINGS_STDOUT                   | Whether to log to stdout.                                          | true                       |
+| qryn.data.QRYN_LOG_SETTINGS_SYSLOG                   | Whether to log to syslog.                                          | true                       |
+| qryn.data.QRYN_MULTITENANCE_SETTINGS_ENABLED         | Whether to enable multi-tenancy.                                   | true                       |
+| qryn.data.QRYN_SYSTEM_SETTINGS_DB_TIMER              | The timeout between two subsequent inserts into the database (sec) | 1                          |
+| qryn.data.QRYN_SYSTEM_SETTINGS_DYNAMIC_DATABASES     | Whether to enable X-CH-DSN header controlled databases.            | false                      |
+| qryn.data.QRYN_SYSTEM_SETTINGS_NO_FORCE_ROTATION     | Whether to disable forced rotation (not used).                     | true                       |
+| qryn.data.QRYN_SYSTEM_SETTINGS_QUERY_STATS           | Whether to enable query statistics.                                | true                       |
+| qryn.data.QRYNCLOUD_LICENSE                          | The license key for qrynCloud.                                     | XXXX                       |
+| **qryn.data.QRYN_DATABASE_DATA_0_NODE**              | The node for the qryn database.                                    | clickhouse1                |
+| **qryn.data.QRYN_DATABASE_DATA_0_USER**              | The user for the qryn database.                                    | default                    |
+| **qryn.data.QRYN_DATABASE_DATA_0_PASS**              | The password for the qryn database.                                |                            |
+| **qryn.data.QRYN_DATABASE_DATA_0_HOST**              | The host for the qryn database.                                    | localhost                  |
+| **qryn.data.QRYN_DATABASE_DATA_0_NAME**              | The name for the qryn database.                                    | qryn                       |
+| **qryn.data.QRYN_DATABASE_DATA_0_PORT**              | The port for the qryn database.                                    | 9000                       |
+| **qryn.data.QRYN_DATABASE_DATA_0_SECURE**            | Whether to use secure connection for the qryn database.            | false                      |
 | reader.autoscaling.enabled                           | Whether to enable hpa autoscaling for the reader.                  | True                       |
 | reader.autoscaling.minReplicas                       | The minimum number of replicas for the reader.                     | 1                          | 
 | reader.autoscaling.maxReplicas                       | The maximum number of replicas for the reader.                     | 10                         | 
@@ -186,6 +186,7 @@ The required options are marked **bold**
 | reader.ingress.enabled                               | Whether to enable ingress for the reader.                          | false                      |
 | reader.ingress.hosts                                 | The list of hostnames for the reader's ingress.                    | ['qryn-reader.local.qryn'] |
 | reader.labels                                        | Additional labels for the reader deployment.                       | []                         |
+| reader.podAnnotations                                | Additional pod annotations for the reader deployment.              | []                         |
 | reader.enabled                                       | Whether to enable the reader deployment.                           | True                       |
 | reader.env.qrynHttpSettingsPort                      | The port for the qryn reader HTTP endpoint.                        | 3200                       |
 | reader.image.repository                              | The repository for the reader image.                               | qxip/qryn-go-cloud         |
@@ -199,6 +200,7 @@ The required options are marked **bold**
 | reader.revisionHistoryLimit                          | The number of history revisions for the reader.                    | 10                         |
 | reader.type                                          | The type of deployment for the reader.                             | ClusterIP                  |
 | writer.labels                                        | Additional labels for the writer deployment.                       | []                         |
+| writer.podAnnotations                                | Additional pod annotations for the writer deployment.              | []                         |
 | writer.enabled                                       | Whether to enable the writer deployment.                           | True                       |
 | writer.ingress.enabled                               | Whether to enable ingress for the writer.                          | True                       |
 | writer.ingress.hosts                                 | The list of hostnames for the writer's ingress.                    | ['qryn-writer.local.qryn'] |
@@ -219,6 +221,7 @@ The required options are marked **bold**
 | writer.revisionHistoryLimit                          | The number of history revisions for the writer.                    | 10                         |
 | writer.type                                          | The type of deployment for the writer.                             | ClusterIP                  |
 | ctrl.labels                                          | Additional labels for the qryn-ctrl deployment.                    | []                         |
+| ctrl.podAnnotations                                  | Additional pod annotations for the ctrl deployment.                | []                         |
 | ctrl.enabled                                         | Whether to enable the qryn-ctrl deployment.                        | True                       |
 | ctrl.image.repository                                | The repository for the qryn-ctrl image.                            | qxip/qryn-ctrl             |
 | ctrl.imagePullPolicy                                 | Whether to pull the image for the qryn-ctrl.                       | IfNotPresent               |

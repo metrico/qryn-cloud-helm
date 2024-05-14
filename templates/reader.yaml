@@ -23,7 +23,6 @@ metadata:
   name: {{ include "qryn-all-in-one.fullname" . }}-reader
   labels:
     io.metrico.service: qryn-reader
-    k8slens-edit-resource-version: v1
     {{- include "qryn-all-in-one.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.reader.replicas }}
@@ -37,6 +36,10 @@ spec:
       labels:
         io.metrico.service: qryn-reader
         {{- include "qryn-all-in-one.selectorLabels" . | nindent 8 }}
+      {{- with .Values.reader.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       containers:
         - env:
@@ -47,8 +50,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "qryn-all-in-one.fullname" . }}-qryn
-          image: {{ .Values.reader.image.repository }}:{{ .Values.reader.image.tag
-          | default .Chart.AppVersion }}
+          image: {{ .Values.reader.image.repository }}:{{ .Values.reader.image.tag | default .Chart.AppVersion }}
           imagePullPolicy: {{ .Values.reader.imagePullPolicy }}
           name: qryn-reader
           ports:
@@ -81,7 +83,6 @@ metadata:
   name: {{ include "qryn-all-in-one.fullname" . }}-reader
   labels:
     io.metrico.service: qryn-reader
-    k8slens-edit-resource-version: v1
     {{- include "qryn-all-in-one.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
