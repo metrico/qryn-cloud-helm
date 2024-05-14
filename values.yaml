@@ -52,6 +52,9 @@ reader:
   revisionHistoryLimit: 10
   type: ClusterIP
   podAnnotations: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 
 writer:
   labels: []
@@ -83,6 +86,9 @@ writer:
   revisionHistoryLimit: 10
   type: ClusterIP
   podAnnotations: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 
 
 ctrl:
@@ -96,3 +102,6 @@ ctrl:
   replicas: 1
   revisionHistoryLimit: 10
   type: ClusterIP
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
