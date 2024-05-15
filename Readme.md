@@ -80,7 +80,7 @@ cat <<EOF | curl -X POST http://localhost:8080/initialize --data-binary @-
       "secure": <TRUE IF CLICKHOUSE USES SSL>,
       "cloud": <TRUE IF YOU WANT THE Distributed..... tables, FALSE for Clickhouse cloud>,
       "cluster_name": "<NAME OF THE CLUSTER IF YOU USE ONE, EMPTY for Clickhouse cloud>",
-      "distributed": <true if you use multiple shards, empty for Clickhouse cloud>,
+      "distributed": <true if you use multiple shards, false for Clickhouse cloud>,
       "ttl_days": <default TTL for the data, days>,
     }
   ]
