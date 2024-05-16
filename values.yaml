@@ -63,6 +63,7 @@ reader:
     #     image: alpine:latest
     #     restartPolicy: Always
     #     command: ['sh', '-c', 'tail -F /opt/logs.txt']
+
 writer:
   labels: []
   enabled: true
@@ -104,8 +105,6 @@ writer:
     #     image: alpine:latest
     #     restartPolicy: Always
     #     command: ['sh', '-c', 'tail -F /opt/logs.txt']
-
-
 
 ctrl:
   labels: []
