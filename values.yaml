@@ -55,7 +55,13 @@ reader:
   nodeSelector: {}
   tolerations: []
   affinity: {}
-
+  initContainers:
+    enabled: false
+    containers:
+      # - name: logshipper
+      #   image: alpine:latest
+      #   restartPolicy: Always
+      #   command: ['sh', '-c', 'tail -F /opt/logs.txt']
 writer:
   labels: []
   enabled: true
@@ -89,6 +95,14 @@ writer:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  initContainers:
+    enabled: false
+    containers:
+      # - name: logshipper
+      #   image: alpine:latest
+      #   restartPolicy: Always
+      #   command: ['sh', '-c', 'tail -F /opt/logs.txt']
+
 
 
 ctrl:
