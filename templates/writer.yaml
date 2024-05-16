@@ -41,6 +41,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      {{- if .Values.writer.initContainers.enabled }}
+      initContainers:
+      {{- if .Values.writer.initContainers.containers }}
+      {{- include "common.tplvalues.render" (dict "value" .Values.writer.initContainers.containers "context" $) | trim | nindent 8 }}
+      {{- end }}
+      {{- end }} 
       containers:
         - command:
             - sh
