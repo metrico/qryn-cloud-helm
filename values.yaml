@@ -22,6 +22,7 @@ qryn:
   QRYN_DATABASE_DATA_0_NAME: "qryn"
   QRYN_DATABASE_DATA_0_PORT: "9000"
   QRYN_DATABASE_DATA_0_SECURE: "false"
+  QRYN_SYSTEM_SETTINGS_LICENSE_AUTO_SHUTDOWN: "true"
 
 reader:
   autoscaling:
@@ -70,7 +71,7 @@ writer:
     qrynHttpSettingsPort: 3100
   image:
     repository: qxip/qryn-writer-cloud
-    tag: 1.9.95-beta.13
+    tag: 1.9.95-beta.16
   imagePullPolicy: IfNotPresent
   resources:
     requests:

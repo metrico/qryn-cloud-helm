@@ -178,6 +178,7 @@ The required options are marked **bold**
 | **qryn.QRYN_DATABASE_DATA_0_NAME**                   | The name for the qryn database.                                    | qryn                       |
 | **qryn.QRYN_DATABASE_DATA_0_PORT**                   | The port for the qryn database.                                    | 9000                       |
 | **qryn.QRYN_DATABASE_DATA_0_SECURE**                 | Whether to use secure connection for the qryn database.            | false                      |
+| qryn.QRYN_SYSTEM_SETTINGS_LICENSE_AUTO_SHUTDOWN      | Whether to deactivate license on sigkill                           | true                       |
 | reader.autoscaling.enabled                           | Whether to enable hpa autoscaling for the reader.                  | True                       |
 | reader.autoscaling.minReplicas                       | The minimum number of replicas for the reader.                     | 1                          | 
 | reader.autoscaling.maxReplicas                       | The maximum number of replicas for the reader.                     | 10                         | 
@@ -225,3 +226,4 @@ The required options are marked **bold**
 | ctrl.replicas                                        | The number of replica sets for the qryn-ctrl.                      | 1                          |
 | ctrl.revisionHistoryLimit                            | The number of history revisions for the qryn-ctrl.                 | 10                         |
 | ctrl.type                                            | The type of deployment for the qryn-ctrl.                          | ClusterIP                  |
+
