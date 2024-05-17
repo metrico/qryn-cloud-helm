@@ -1,28 +1,27 @@
 kubernetesClusterDomain: cluster.local
 
-namespace:
-  name: qryn
-
 nameOverride: qryn
 
 qryn:
-  QRYN_LOG_SETTINGS_LEVEL: debug
-  QRYN_LOG_SETTINGS_STDOUT: "true"
-  QRYN_LOG_SETTINGS_SYSLOG: "true"
-  QRYN_MULTITENANCE_SETTINGS_ENABLED: "true"
-  QRYN_SYSTEM_SETTINGS_DB_TIMER: "1"
-  QRYN_SYSTEM_SETTINGS_DYNAMIC_DATABASES: "false"
-  QRYN_SYSTEM_SETTINGS_NO_FORCE_ROTATION: "true"
-  QRYN_SYSTEM_SETTINGS_QUERY_STATS: "true"
-  QRYNCLOUD_LICENSE: XXXX
-  QRYN_DATABASE_DATA_0_NODE: "clickhouse1"
-  QRYN_DATABASE_DATA_0_USER: "default"
-  QRYN_DATABASE_DATA_0_PASS: ""
-  QRYN_DATABASE_DATA_0_HOST: "localhost"
-  QRYN_DATABASE_DATA_0_NAME: "qryn"
-  QRYN_DATABASE_DATA_0_PORT: "9000"
-  QRYN_DATABASE_DATA_0_SECURE: "false"
-  QRYN_SYSTEM_SETTINGS_LICENSE_AUTO_SHUTDOWN: "true"
+  annotations: []
+  data:
+    QRYN_LOG_SETTINGS_LEVEL: debug
+    QRYN_LOG_SETTINGS_STDOUT: "true"
+    QRYN_LOG_SETTINGS_SYSLOG: "true"
+    QRYN_MULTITENANCE_SETTINGS_ENABLED: "true"
+    QRYN_SYSTEM_SETTINGS_DB_TIMER: "1"
+    QRYN_SYSTEM_SETTINGS_DYNAMIC_DATABASES: "false"
+    QRYN_SYSTEM_SETTINGS_NO_FORCE_ROTATION: "true"
+    QRYN_SYSTEM_SETTINGS_QUERY_STATS: "true"
+    QRYNCLOUD_LICENSE: XXXX
+    QRYN_DATABASE_DATA_0_NODE: "clickhouse1"
+    QRYN_DATABASE_DATA_0_USER: "default"
+    QRYN_DATABASE_DATA_0_PASS: ""
+    QRYN_DATABASE_DATA_0_HOST: "localhost"
+    QRYN_DATABASE_DATA_0_NAME: "qryn"
+    QRYN_DATABASE_DATA_0_PORT: "9000"
+    QRYN_DATABASE_DATA_0_SECURE: "false"
+    QRYN_SYSTEM_SETTINGS_LICENSE_AUTO_SHUTDOWN: "true"
 
 reader:
   autoscaling:
@@ -53,6 +52,18 @@ reader:
   replicas: 1
   revisionHistoryLimit: 10
   type: ClusterIP
+  podAnnotations: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  initContainers:
+    enabled: false
+    containers: []
+    # containers:
+    #   - name: logshipper
+    #     image: alpine:latest
+    #     restartPolicy: Always
+    #     command: ['sh', '-c', 'tail -F /opt/logs.txt']
 
 writer:
   labels: []
@@ -83,10 +94,22 @@ writer:
   replicas: 1
   revisionHistoryLimit: 10
   type: ClusterIP
-
+  podAnnotations: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  initContainers:
+    enabled: false
+    containers: []
+    # containers:
+    #   - name: logshipper
+    #     image: alpine:latest
+    #     restartPolicy: Always
+    #     command: ['sh', '-c', 'tail -F /opt/logs.txt']
 
 ctrl:
   labels: []
+  podAnnotations: []
   enabled: true
   image:
     repository: qxip/qryn-ctrl
@@ -95,3 +118,6 @@ ctrl:
   replicas: 1
   revisionHistoryLimit: 10
   type: ClusterIP
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

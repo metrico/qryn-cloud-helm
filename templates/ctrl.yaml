@@ -4,12 +4,12 @@ kind: Service
 metadata:
   name: {{ include "qryn-all-in-one.fullname" . }}-ctrl
   labels:
-    app: qryn-ctrl
+    io.metrico.service: qryn-ctrl
   {{- include "qryn-all-in-one.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.ctrl.type }}
   selector:
-    app: qryn-ctrl
+    io.metrico.service: qryn-ctrl
   {{- include "qryn-all-in-one.selectorLabels" . | nindent 4 }}
   ports:
     - port: 8080
@@ -22,23 +22,24 @@ kind: Deployment
 metadata:
   name: {{ include "qryn-all-in-one.fullname" . }}-ctrl
   labels:
-    app: qryn-ctrl
-    k8slens-edit-resource-version: v1
+    io.metrico.service: qryn-ctrl
   {{- include "qryn-all-in-one.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.ctrl.replicas }}
   revisionHistoryLimit: {{ .Values.ctrl.revisionHistoryLimit }}
   selector:
     matchLabels:
-      app: qryn-ctrl
+      io.metrico.service: qryn-ctrl
     {{- include "qryn-all-in-one.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: qryn-ctrl
+        io.metrico.service: qryn-ctrl
       {{- include "qryn-all-in-one.selectorLabels" . | nindent 8 }}
+      {{- with .Values.ctrl.podAnnotations }}
       annotations:
-        linkerd.io/inject: disabled
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       containers:
         - command:
@@ -50,8 +51,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "qryn-all-in-one.fullname" . }}-qryn
-          image: {{ .Values.ctrl.image.repository }}:{{ .Values.ctrl.image.tag
-          | default .Chart.AppVersion }}
+          image: {{ .Values.ctrl.image.repository }}:{{ .Values.ctrl.image.tag | default .Chart.AppVersion }}
           imagePullPolicy: {{ .Values.ctrl.imagePullPolicy }}
           name: qryn-ctrl
           ports:
@@ -67,4 +67,16 @@ spec:
       schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 30
+      {{- with .Values.ctrl.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ctrl.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ctrl.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{ end }}
