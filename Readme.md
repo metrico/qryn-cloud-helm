@@ -178,6 +178,7 @@ The required options are marked **bold**
 | **qryn.data.QRYN_DATABASE_DATA_0_NAME**              | The name for the qryn database.                                    | qryn                       |
 | **qryn.data.QRYN_DATABASE_DATA_0_PORT**              | The port for the qryn database.                                    | 9000                       |
 | **qryn.data.QRYN_DATABASE_DATA_0_SECURE**            | Whether to use secure connection for the qryn database.            | false                      |
+| qryn.data.QRYN_SYSTEM_SETTINGS_LICENSE_AUTO_SHUTDOWN | Whether to deactivate license on sigkill                           | true                       |
 | reader.autoscaling.enabled                           | Whether to enable hpa autoscaling for the reader.                  | True                       |
 | reader.autoscaling.minReplicas                       | The minimum number of replicas for the reader.                     | 1                          | 
 | reader.autoscaling.maxReplicas                       | The maximum number of replicas for the reader.                     | 10                         | 
