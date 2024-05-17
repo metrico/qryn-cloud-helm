@@ -54,15 +54,15 @@ reader:
   type: ClusterIP
   podAnnotations: []
   livenessProbe: {}
-    # initialDelaySeconds: 20
+    # initialDelaySeconds: 15
     # periodSeconds: 10
-    # timeoutSeconds: 5
+    # timeoutSeconds: 3
     # failureThreshold: 6
     # successThreshold: 1
   readinessProbe: {}
-    # initialDelaySeconds: 20
+    # initialDelaySeconds: 15
     # periodSeconds: 10
-    # timeoutSeconds: 5
+    # timeoutSeconds: 3
     # failureThreshold: 6
     # successThreshold: 1
   nodeSelector: {}
@@ -108,15 +108,15 @@ writer:
   type: ClusterIP
   podAnnotations: []
   livenessProbe: {}
-    # initialDelaySeconds: 20
+    # initialDelaySeconds: 15
     # periodSeconds: 10
-    # timeoutSeconds: 5
+    # timeoutSeconds: 3
     # failureThreshold: 6
     # successThreshold: 1
   readinessProbe: {}
-    # initialDelaySeconds: 20
+    # initialDelaySeconds: 15
     # periodSeconds: 10
-    # timeoutSeconds: 5
+    # timeoutSeconds: 3
     # failureThreshold: 6
     # successThreshold: 1
   nodeSelector: {}
