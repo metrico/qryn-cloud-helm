@@ -18,7 +18,8 @@ jobs:
         with:
           fetch-depth: 0
       - run: |
-          cp -r ../qryn-cloud-helm ./
+          mkdir -p qryn-cloud-helm
+          cp -r ./* ./qryn-cloud-helm/
 
       - name: Configure Git
         run: |
