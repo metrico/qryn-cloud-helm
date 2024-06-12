@@ -12,7 +12,7 @@ This Helm chart provides Kubernetes deployment configurations for [qryn-cloud](h
 ## Get Repository Info
 
 ```bash
-helm repo add qryn-helm https://metrico.github.io/qryn-cloud-helm/
+helm repo add qryn-cloud-helm https://metrico.github.io/qryn-cloud-helm/
 helm repo update
 ```
 
