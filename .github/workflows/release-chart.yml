@@ -1,5 +1,7 @@
 name: Release Charts
 
+permissions:
+      contents: write
 on:
   push:
     branches:
@@ -26,4 +28,4 @@ jobs:
         with:
          charts_dir: .
         env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_TOKEN: "${{ github.token }}"
