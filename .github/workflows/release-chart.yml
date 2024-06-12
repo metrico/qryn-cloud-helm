@@ -18,8 +18,9 @@ jobs:
         with:
           fetch-depth: 0
       - run: |
-          mkdir -p qryn-cloud-helm
-          cp -r ./* ./qryn-cloud-helm/
+          mkdir -p Charts/qryn-cloud-helm
+          cp -r ./* ./Charts/qryn-cloud-helm/
+          ls -alF ./Charts
         continue-on-error: true
 
       - name: Configure Git
@@ -29,7 +30,5 @@ jobs:
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
-        with:
-          charts_dir: '.'
         env:
           CR_TOKEN: "${{ github.token }}"
