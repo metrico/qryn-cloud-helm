@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  qryn-cloud-helm:
+  - apiVersion: v2
+    appVersion: 0.2.2
+    created: "2024-06-12T15:24:16.349822123Z"
+    description: A qryn-cloud Helm chart for Kubernetes
+    digest: 2e0c8b14c357dac6b27c21d2556fa8bab7995301b5effd5fe11c3491405453d6
+    name: qryn-cloud-helm
+    type: application
+    urls:
+    - https://github.com/metrico/qryn-cloud-helm/releases/download/qryn-cloud-helm-0.2.1/qryn-cloud-helm-0.2.1.tgz
+    version: 0.2.1
+generated: "2024-06-12T15:24:16.349853421Z"
