@@ -20,6 +20,7 @@ jobs:
       - run: |
           mkdir -p qryn-cloud-helm
           cp -r ./* ./qryn-cloud-helm/
+        continue-on-error: true
 
       - name: Configure Git
         run: |
