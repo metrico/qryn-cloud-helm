@@ -40,7 +40,7 @@ reader:
     qrynHttpSettingsPort: 3200
   image:
     repository: qxip/qryn-go-cloud
-    tag: 1.2.91-beta.60
+    tag: 1.2.91-beta.61
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -94,7 +94,7 @@ writer:
     qrynHttpSettingsPort: 3100
   image:
     repository: qxip/qryn-writer-cloud
-    tag: 1.9.95-beta.20
+    tag: 1.9.95-beta.21
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -137,7 +137,7 @@ ctrl:
   enabled: true
   image:
     repository: qxip/qryn-ctrl
-    tag: 0.1.13
+    tag: 0.1.17
   imagePullPolicy: IfNotPresent
   replicas: 1
   revisionHistoryLimit: 10
