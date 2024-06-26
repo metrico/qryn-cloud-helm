@@ -1,0 +1,121 @@
+{{- if .Values.keydb.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qryn-all-in-one.fullname" . }}-keydb
+  labels:
+    io.metrico.service: qryn-keydb
+  {{- include "qryn-all-in-one.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.reader.type }}
+  selector:
+    io.metrico.service: qryn-keydb
+  {{- include "qryn-all-in-one.selectorLabels" . | nindent 4 }}
+  ports:
+    - port: 6379
+      targetPort: 6379
+      protocol: TCP
+      name: tcp
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "qryn-all-in-one.fullname" . }}-keydb
+  labels:
+  {{- include "qryn-all-in-one.labels" . | nindent 4 }}
+  {{- with .Values.qryn.annotations }}
+  annotations:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+data:
+  {{- .Values.keydb.env | toYaml | nindent 2}}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "qryn-all-in-one.fullname" . }}-keydb
+  labels:
+    io.metrico.service: qryn-keydb
+  {{- include "qryn-all-in-one.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      io.metrico.service: qryn-keydb
+    {{- include "qryn-all-in-one.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "qryn-all-in-one.fullname" . }}-keydb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        io.metrico.service: qryn-keydb
+      {{- include "qryn-all-in-one.selectorLabels" . | nindent 8 }}
+      {{- with .Values.keydb.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.writer.initContainers.enabled }}
+      initContainers:
+      {{- if .Values.writer.initContainers.containers }}
+      {{- include "common.tplvalues.render" (dict "value" .Values.writer.initContainers.containers "context" $) | trim | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      containers:
+        - name: keydb
+          image: eqalpha/keydb:alpine_x86_64_v6.3.4
+          ports:
+            - containerPort: 6379
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - apk add envsubst && envsubst </etc/keydb/keydb.conf.template >/etc/keydb/keydb.conf && keydb-server /etc/keydb/keydb.conf --server-threads 2
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - keydb-cli --raw incr ping
+            initialDelaySeconds: {{ .Values.keydb.livenessProbe.initialDelaySeconds | default 15 }}
+            periodSeconds: {{ .Values.keydb.livenessProbe.periodSeconds | default 10 }}
+            timeoutSeconds: {{ .Values.keydb.livenessProbe.timeoutSeconds | default 3 }}
+            failureThreshold: {{ .Values.keydb.livenessProbe.failureThreshold | default 6 }}
+            successThreshold: {{ .Values.keydb.livenessProbe.successThreshold | default 1 }}
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - keydb-cli --raw incr ping
+            initialDelaySeconds: {{ .Values.keydb.readinessProbe.initialDelaySeconds | default 15 }}
+            periodSeconds: {{ .Values.keydb.readinessProbe.periodSeconds | default 10 }}
+            timeoutSeconds: {{ .Values.keydb.readinessProbe.timeoutSeconds | default 3 }}
+            failureThreshold: {{ .Values.keydb.readinessProbe.failureThreshold | default 6 }}
+            successThreshold: {{ .Values.keydb.readinessProbe.successThreshold | default 1 }}
+          volumeMounts:
+            {{- if .Values.keydb.persistence }}
+            - name: keydb-data
+              mountPath: /data
+            {{- end }}
+            - name: keydb-config
+              mountPath: /etc/keydb/keydb.conf.template
+              subPath: keydb.conf.template
+          envFrom:
+            - configMapRef:
+                name: {{ include "qryn-all-in-one.fullname" . }}-keydb
+      volumes:
+        - name: keydb-config
+          configMap:
+            name: {{ include "qryn-all-in-one.fullname" . }}-keydb-config
+
+  volumeClaimTemplates:
+    {{- if .Values.keydb.persistence }}
+    - metadata:
+        name: keydb-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 100Mi
+    {{- end }}
+{{- end }}

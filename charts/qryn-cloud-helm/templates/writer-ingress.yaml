@@ -37,6 +37,7 @@ spec:
   {{- end }}
   rules:
     {{ $port := .Values.writer.env.qrynHttpSettingsPort }}
+    {{ $sName := printf "%s-writer" (include "qryn-all-in-one.fullname" .)}}
     {{- range .Values.writer.ingress.hosts }}
     - host: {{ . | quote }}
       http:
@@ -45,7 +46,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "qryn-all-in-one.fullname" . }}-writer
+                name: {{ $sName }}
                 port:
                   number: {{ $port }}
     {{- end }}
