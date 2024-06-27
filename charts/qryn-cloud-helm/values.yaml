@@ -153,10 +153,14 @@ ctrl:
 keydb:
   enabled: false
   persistence: true
+  image: eqalpha/keydb:alpine_x86_64_v6.3.4
   livenessProbe: { }
   readinessProbe: { }
   initContainers:
     enabled: false
+  port: 6379
+  targetPort: 6379
+  containerPort: 6379
   env:
     KEYDB_PASS: XXXXXXX
 

@@ -12,8 +12,8 @@ spec:
     io.metrico.service: qryn-keydb
   {{- include "qryn-all-in-one.selectorLabels" . | nindent 4 }}
   ports:
-    - port: 6379
-      targetPort: 6379
+    - port: {{ .Values.keydb.port }}
+      targetPort: {{ .Values.keydb.targetPort }}
       protocol: TCP
       name: tcp
 ---
@@ -62,9 +62,9 @@ spec:
       {{- end }}
       containers:
         - name: keydb
-          image: eqalpha/keydb:alpine_x86_64_v6.3.4
+          image: {{ .Values.keydb.image }}
           ports:
-            - containerPort: 6379
+            - containerPort: {{ .Values.keydb.containerPort }}
           imagePullPolicy: IfNotPresent
           command:
             - sh
