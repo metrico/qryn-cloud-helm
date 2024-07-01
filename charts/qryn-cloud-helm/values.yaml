@@ -1,6 +1,7 @@
 kubernetesClusterDomain: cluster.local
 
 nameOverride: qryn
+fullnameOverride: false
 
 qryn:
   annotations: []
@@ -22,6 +23,9 @@ qryn:
     QRYN_DATABASE_DATA_0_PORT: "9000"
     QRYN_DATABASE_DATA_0_SECURE: "false"
     QRYN_SYSTEM_SETTINGS_LICENSE_AUTO_SHUTDOWN: "true"
+    # Delete configuration
+    QRYN_WORKER_TYPE: "redis"
+    QRYN_WORKER_SYNC_URL: "redis://XXXX@qryn-keydb:6379"
 
 reader:
   autoscaling:
@@ -40,7 +44,7 @@ reader:
     qrynHttpSettingsPort: 3200
   image:
     repository: qxip/qryn-go-cloud
-    tag: 1.2.91-beta.61
+    tag: 1.2.91-beta.66
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -145,3 +149,36 @@ ctrl:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+
+keydb:
+  enabled: false
+  persistence: true
+  image: eqalpha/keydb:alpine_x86_64_v6.3.4
+  livenessProbe: { }
+  readinessProbe: { }
+  initContainers:
+    enabled: false
+  port: 6379
+  targetPort: 6379
+  containerPort: 6379
+  env:
+    KEYDB_PASS: XXXXXXX
+
+deleteWorker:
+  enabled: false
+  podAnnotations: []
+  image:
+    repository: qxip/qryn-deleter
+    tag: 1.2.91-beta.66
+  imagePullPolicy: IfNotPresent
+  schedule: "* * * * *"
+  nodeSelector: { }
+  tolerations: [ ]
+  affinity: { }
+  resources:
+    requests:
+      memory: 100Mi
+      cpu: 100m
+    limits:
+      memory: 100Mi
+      cpu: 100m

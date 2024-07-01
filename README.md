@@ -89,6 +89,78 @@ cat <<EOF | curl -X POST http://localhost:8080/initialize --data-binary @-
 EOF
 ```
 
+# Data deletion
+
+The data deletion functionality is optional and can be configured using the helmchart. It consists of the modules:
+
+- qryn-reader properly configured
+- qryn-worker cronjob
+- redis-compatible storage of the deletion tasks and deletion status
+
+## Redis-compatible storage
+
+Any redis-compatible instance can be used to store the tasks and synchronize the workers.
+The storage should be persistent. Non-persistent storage may lose planned tasks and status synchronization.  
+The helmchart contains an optional configurable keydb storage with the following values.yaml configuration:
+
+```yaml
+keydb:
+  # enable or disable a keydb instance
+  enabled: false
+  # enable or disable a persistent volume
+  persistence: true
+  # liveness / readiness / initContainers specification default for any deloyment
+  livenessProbe: { }
+  readinessProbe: { }
+  initContainers:
+    enabled: false
+  # keydb password is mandatory for the helmchart
+  env:
+    KEYDB_PASS: XXXXXXX
+```
+
+These configurations can be overriden with the user values.yaml file.
+
+## Qryn-worker cronjob:
+
+The qryn delete worker cronjob is present in the helmchart with the following values.yaml
+```yaml
+deleteWorker:
+  # enable / disable the cronjob
+  enabled: false
+  podAnnotations: []
+  image:
+    repository: qxip/qryn-deleter
+    tag: 1.2.91-beta.65
+  imagePullPolicy: IfNotPresent
+  # schedule for the cronjob
+  schedule: "* * * * *"
+  nodeSelector: { }
+  tolerations: [ ]
+  affinity: { }
+  resources:
+    requests:
+      memory: 100Mi
+      cpu: 100m
+    limits:
+      memory: 100Mi
+      cpu: 100m
+```
+
+The schedule configuration can be changed to run the deletion worker less frequently.
+
+## The qryn-go configuration
+
+The following variables were added to the configuration configmap:
+```yaml
+    # Delete configuration
+    QRYN_WORKER_TYPE: "redis"
+    QRYN_WORKER_SYNC_URL: "redis://XXXX@qryn-keydb:6379"
+```
+
+The worker type should be "redis".
+The sync url should be a valid redis URI. 
+
 # Ingress setup
 In order to reach Qryn from outside, the http ingress rules should be configured.
 Current helm has a default ingress definition. It can be enabled for writer and reader separately by configuring
@@ -157,84 +229,101 @@ Websocket connection for qryn-reader service:
 
 The required options are marked **bold**
 
-| Configuration                                        | Description                                                        | Default Value              |
-|------------------------------------------------------|--------------------------------------------------------------------|----------------------------|
-| kubernetesClusterDomain                              | The domain to use for Kubernetes cluster.                          | cluster.local              |
-| nameOverride                                         | A string to partially replace the name of the qryn deployment.     | qryn                       |
-| qryn.annotations                                     | Additional annotations for the configmap.                          | []                         |
-| qryn.data.QRYN_LOG_SETTINGS_LEVEL                    | The log level for qryn.                                            | debug                      |
-| qryn.data.QRYN_LOG_SETTINGS_STDOUT                   | Whether to log to stdout.                                          | true                       |
-| qryn.data.QRYN_LOG_SETTINGS_SYSLOG                   | Whether to log to syslog.                                          | true                       |
-| qryn.data.QRYN_MULTITENANCE_SETTINGS_ENABLED         | Whether to enable multi-tenancy.                                   | true                       |
-| qryn.data.QRYN_SYSTEM_SETTINGS_DB_TIMER              | The timeout between two subsequent inserts into the database (sec) | 1                          |
-| qryn.data.QRYN_SYSTEM_SETTINGS_DYNAMIC_DATABASES     | Whether to enable X-CH-DSN header controlled databases.            | false                      |
-| qryn.data.QRYN_SYSTEM_SETTINGS_NO_FORCE_ROTATION     | Whether to disable forced rotation (not used).                     | true                       |
-| qryn.data.QRYN_SYSTEM_SETTINGS_QUERY_STATS           | Whether to enable query statistics.                                | true                       |
-| qryn.data.QRYNCLOUD_LICENSE                          | The license key for qrynCloud.                                     | XXXX                       |
-| **qryn.data.QRYN_DATABASE_DATA_0_NODE**              | The node for the qryn database.                                    | clickhouse1                |
-| **qryn.data.QRYN_DATABASE_DATA_0_USER**              | The user for the qryn database.                                    | default                    |
-| **qryn.data.QRYN_DATABASE_DATA_0_PASS**              | The password for the qryn database.                                |                            |
-| **qryn.data.QRYN_DATABASE_DATA_0_HOST**              | The host for the qryn database.                                    | localhost                  |
-| **qryn.data.QRYN_DATABASE_DATA_0_NAME**              | The name for the qryn database.                                    | qryn                       |
-| **qryn.data.QRYN_DATABASE_DATA_0_PORT**              | The port for the qryn database.                                    | 9000                       |
-| **qryn.data.QRYN_DATABASE_DATA_0_SECURE**            | Whether to use secure connection for the qryn database.            | false                      |
-| qryn.data.QRYN_SYSTEM_SETTINGS_LICENSE_AUTO_SHUTDOWN | Whether to deactivate license on sigkill                           | true                       |
-| reader.autoscaling.enabled                           | Whether to enable hpa autoscaling for the reader.                  | True                       |
-| reader.autoscaling.minReplicas                       | The minimum number of replicas for the reader.                     | 1                          | 
-| reader.autoscaling.maxReplicas                       | The maximum number of replicas for the reader.                     | 10                         | 
-| reader.autoscaling.targetCPUUtilizationPercentage    | The target CPU utilization percentage for autoscaling.             | 80                         |
-| reader.autoscaling.targetMemoryUtilizationPercentage | The target memory utilization percentage for autoscaling.          | 80                         |
-| reader.ingress.enabled                               | Whether to enable ingress for the reader.                          | false                      |
-| reader.ingress.hosts                                 | The list of hostnames for the reader's ingress.                    | ['qryn-reader.local.qryn'] |
-| reader.labels                                        | Additional labels for the reader deployment.                       | []                         |
-| reader.podAnnotations                                | Additional pod annotations for the reader deployment.              | []                         |
-| reader.nodeSelector                                  | Configure nodeSelector for reader deployment.                      | {}                         |       
-| reader.tolerations                                   | Configure tolerations for reader deployment.                       | []                         | 
-| reader.affinity                                      | Configure affinity for reader deployment.                          | {}                         | 
-| reader.enabled                                       | Whether to enable the reader deployment.                           | True                       |
-| reader.env.qrynHttpSettingsPort                      | The port for the qryn reader HTTP endpoint.                        | 3200                       |
-| reader.image.repository                              | The repository for the reader image.                               | qxip/qryn-go-cloud         |
-| reader.image.tag                                     | The tag for the reader image.                                      | 1.2.91-beta.55             |
-| reader.imagePullPolicy                               | The image pull policy for the reader image.                        | IfNotPresent               |
-| reader.resources.requests.memory                     | The requested memory for the reader.                               | 1Gi                        |
-| reader.resources.requests.cpu                        | The requested CPU for the reader.                                  | 100m                       |
-| reader.resources.limits.memory                       | The memory limit for the reader.                                   | 1Gi                        |
-| reader.resources.limits.cpu                          | The CPU limit for the reader.                                      | 100m                       |
-| reader.replicas                                      | The number of replica sets for the reader.                         | 1                          |
-| reader.revisionHistoryLimit                          | The number of history revisions for the reader.                    | 10                         |
-| reader.type                                          | The type of deployment for the reader.                             | ClusterIP                  |
-| writer.labels                                        | Additional labels for the writer deployment.                       | []                         |
-| writer.podAnnotations                                | Additional pod annotations for the writer deployment.              | []                         |
-| writer.nodeSelector                                  | Configure nodeSelector for writer deployment.                      | {}                         |       
-| writer.tolerations                                   | Configure tolerations for writer deployment.                       | []                         | 
-| writer.affinity                                      | Configure affinity for writer deployment.                          | {}                         |
-| writer.enabled                                       | Whether to enable the writer deployment.                           | True                       |
-| writer.ingress.enabled                               | Whether to enable ingress for the writer.                          | True                       |
-| writer.ingress.hosts                                 | The list of hostnames for the writer's ingress.                    | ['qryn-writer.local.qryn'] |
-| writer.autoscaling.enabled                           | Whether to enable autoscaling for the writer.                      | True                       |
-| writer.autoscaling.minReplicas                       | The minimum number of replicas for the writer.                     | 1                          |
-| writer.autoscaling.maxReplicas                       | The maximum number of replicas for the writer.                     | 10                         |
-| writer.autoscaling.targetCPUUtilizationPercentage    | The target CPU utilization percentage for autoscaling.             | 80                         |
-| writer.autoscaling.targetMemoryUtilizationPercentage | The target memory utilization percentage for autoscaling.          | 80                         |
-| writer.env.qrynHttpSettingsPort                      | The port for the qryn HTTP endpoint.                               | 3100                       |
-| writer.image.repository                              | The repository for the writer image.                               | qxip/qryn-writer-cloud     |
-| writer.image.tag                                     | The tag for the writer image.                                      | 1.9.95-beta.13             |
-| writer.imagePullPolicy                               | The image pull policy for the writer image.                        | IfNotPresent               |
-| writer.resources.requests.memory                     | The requested memory for the writer.                               | 1Gi                        |
-| writer.resources.requests.cpu                        | The requested CPU for the writer.                                  | 100m                       |
-| writer.resources.limits.memory                       | The memory limit for the writer.                                   | 1Gi                        |
-| writer.resources.limits.cpu                          | The CPU limit for the writer.                                      | 100m                       |
-| writer.replicas                                      | The number of replica sets for the writer.                         | 1                          |
-| writer.revisionHistoryLimit                          | The number of history revisions for the writer.                    | 10                         |
-| writer.type                                          | The type of deployment for the writer.                             | ClusterIP                  |
-| ctrl.labels                                          | Additional labels for the qryn-ctrl deployment.                    | []                         |
-| ctrl.podAnnotations                                  | Additional pod annotations for the ctrl deployment.                | []                         |
-| ctrl.nodeSelector                                    | Configure nodeSelector for ctrl deployment.                        | {}                         |       
-| ctrl.tolerations                                     | Configure tolerations for ctrl deployment.                         | []                         | 
-| ctrl.affinity                                        | Configure affinity for ctrl deployment.                            | {}                         | 
-| ctrl.enabled                                         | Whether to enable the qryn-ctrl deployment.                        | True                       |
-| ctrl.image.repository                                | The repository for the qryn-ctrl image.                            | qxip/qryn-ctrl             |
-| ctrl.imagePullPolicy                                 | Whether to pull the image for the qryn-ctrl.                       | IfNotPresent               |
-| ctrl.replicas                                        | The number of replica sets for the qryn-ctrl.                      | 1                          |
-| ctrl.revisionHistoryLimit                            | The number of history revisions for the qryn-ctrl.                 | 10                         |
-| ctrl.type                                            | The type of deployment for the qryn-ctrl.                          | ClusterIP                  |
+| Configuration                                        | Description                                                        | Default Value               |
+|------------------------------------------------------|--------------------------------------------------------------------|-----------------------------|
+| kubernetesClusterDomain                              | The domain to use for Kubernetes cluster.                          | cluster.local               |
+| nameOverride                                         | A string to partially replace the name of the qryn deployment.     | qryn                        |
+| qryn.annotations                                     | Additional annotations for the configmap.                          | []                          |
+| qryn.data.QRYN_LOG_SETTINGS_LEVEL                    | The log level for qryn.                                            | debug                       |
+| qryn.data.QRYN_LOG_SETTINGS_STDOUT                   | Whether to log to stdout.                                          | true                        |
+| qryn.data.QRYN_LOG_SETTINGS_SYSLOG                   | Whether to log to syslog.                                          | true                        |
+| qryn.data.QRYN_MULTITENANCE_SETTINGS_ENABLED         | Whether to enable multi-tenancy.                                   | true                        |
+| qryn.data.QRYN_SYSTEM_SETTINGS_DB_TIMER              | The timeout between two subsequent inserts into the database (sec) | 1                           |
+| qryn.data.QRYN_SYSTEM_SETTINGS_DYNAMIC_DATABASES     | Whether to enable X-CH-DSN header controlled databases.            | false                       |
+| qryn.data.QRYN_SYSTEM_SETTINGS_NO_FORCE_ROTATION     | Whether to disable forced rotation (not used).                     | true                        |
+| qryn.data.QRYN_SYSTEM_SETTINGS_QUERY_STATS           | Whether to enable query statistics.                                | true                        |
+| qryn.data.QRYNCLOUD_LICENSE                          | The license key for qrynCloud.                                     | XXXX                        |
+| **qryn.data.QRYN_DATABASE_DATA_0_NODE**              | The node for the qryn database.                                    | clickhouse1                 |
+| **qryn.data.QRYN_DATABASE_DATA_0_USER**              | The user for the qryn database.                                    | default                     |
+| **qryn.data.QRYN_DATABASE_DATA_0_PASS**              | The password for the qryn database.                                |                             |
+| **qryn.data.QRYN_DATABASE_DATA_0_HOST**              | The host for the qryn database.                                    | localhost                   |
+| **qryn.data.QRYN_DATABASE_DATA_0_NAME**              | The name for the qryn database.                                    | qryn                        |
+| **qryn.data.QRYN_DATABASE_DATA_0_PORT**              | The port for the qryn database.                                    | 9000                        |
+| **qryn.data.QRYN_DATABASE_DATA_0_SECURE**            | Whether to use secure connection for the qryn database.            | false                       |
+| qryn.data.QRYN_SYSTEM_SETTINGS_LICENSE_AUTO_SHUTDOWN | Whether to deactivate license on sigkill                           | true                        |
+| qryn.data.QRYN_WORKER_TYPE                           | Deletion worker type (redis/internal)                              | redis                       |
+| qryn.data.QRYN_WORKER_SYNC_URL                       | Redis URI for "redis" worker                                       | redis://XXXX@qryn-keydb:6379 |
+| reader.autoscaling.enabled                           | Whether to enable hpa autoscaling for the reader.                  | True                        |
+| reader.autoscaling.minReplicas                       | The minimum number of replicas for the reader.                     | 1                           | 
+| reader.autoscaling.maxReplicas                       | The maximum number of replicas for the reader.                     | 10                          | 
+| reader.autoscaling.targetCPUUtilizationPercentage    | The target CPU utilization percentage for autoscaling.             | 80                          |
+| reader.autoscaling.targetMemoryUtilizationPercentage | The target memory utilization percentage for autoscaling.          | 80                          |
+| reader.ingress.enabled                               | Whether to enable ingress for the reader.                          | false                       |
+| reader.ingress.hosts                                 | The list of hostnames for the reader's ingress.                    | ['qryn-reader.local.qryn']  |
+| reader.labels                                        | Additional labels for the reader deployment.                       | []                          |
+| reader.podAnnotations                                | Additional pod annotations for the reader deployment.              | []                          |
+| reader.nodeSelector                                  | Configure nodeSelector for reader deployment.                      | {}                          |       
+| reader.tolerations                                   | Configure tolerations for reader deployment.                       | []                          | 
+| reader.affinity                                      | Configure affinity for reader deployment.                          | {}                          | 
+| reader.enabled                                       | Whether to enable the reader deployment.                           | True                        |
+| reader.env.qrynHttpSettingsPort                      | The port for the qryn reader HTTP endpoint.                        | 3200                        |
+| reader.image.repository                              | The repository for the reader image.                               | qxip/qryn-go-cloud          |
+| reader.image.tag                                     | The tag for the reader image.                                      | 1.2.91-beta.55              |
+| reader.imagePullPolicy                               | The image pull policy for the reader image.                        | IfNotPresent                |
+| reader.resources.requests.memory                     | The requested memory for the reader.                               | 1Gi                         |
+| reader.resources.requests.cpu                        | The requested CPU for the reader.                                  | 100m                        |
+| reader.resources.limits.memory                       | The memory limit for the reader.                                   | 1Gi                         |
+| reader.resources.limits.cpu                          | The CPU limit for the reader.                                      | 100m                        |
+| reader.replicas                                      | The number of replica sets for the reader.                         | 1                           |
+| reader.revisionHistoryLimit                          | The number of history revisions for the reader.                    | 10                          |
+| reader.type                                          | The type of deployment for the reader.                             | ClusterIP                   |
+| writer.labels                                        | Additional labels for the writer deployment.                       | []                          |
+| writer.podAnnotations                                | Additional pod annotations for the writer deployment.              | []                          |
+| writer.nodeSelector                                  | Configure nodeSelector for writer deployment.                      | {}                          |       
+| writer.tolerations                                   | Configure tolerations for writer deployment.                       | []                          | 
+| writer.affinity                                      | Configure affinity for writer deployment.                          | {}                          |
+| writer.enabled                                       | Whether to enable the writer deployment.                           | True                        |
+| writer.ingress.enabled                               | Whether to enable ingress for the writer.                          | True                        |
+| writer.ingress.hosts                                 | The list of hostnames for the writer's ingress.                    | ['qryn-writer.local.qryn']  |
+| writer.autoscaling.enabled                           | Whether to enable autoscaling for the writer.                      | True                        |
+| writer.autoscaling.minReplicas                       | The minimum number of replicas for the writer.                     | 1                           |
+| writer.autoscaling.maxReplicas                       | The maximum number of replicas for the writer.                     | 10                          |
+| writer.autoscaling.targetCPUUtilizationPercentage    | The target CPU utilization percentage for autoscaling.             | 80                          |
+| writer.autoscaling.targetMemoryUtilizationPercentage | The target memory utilization percentage for autoscaling.          | 80                          |
+| writer.env.qrynHttpSettingsPort                      | The port for the qryn HTTP endpoint.                               | 3100                        |
+| writer.image.repository                              | The repository for the writer image.                               | qxip/qryn-writer-cloud      |
+| writer.image.tag                                     | The tag for the writer image.                                      | 1.9.95-beta.13              |
+| writer.imagePullPolicy                               | The image pull policy for the writer image.                        | IfNotPresent                |
+| writer.resources.requests.memory                     | The requested memory for the writer.                               | 1Gi                         |
+| writer.resources.requests.cpu                        | The requested CPU for the writer.                                  | 100m                        |
+| writer.resources.limits.memory                       | The memory limit for the writer.                                   | 1Gi                         |
+| writer.resources.limits.cpu                          | The CPU limit for the writer.                                      | 100m                        |
+| writer.replicas                                      | The number of replica sets for the writer.                         | 1                           |
+| writer.revisionHistoryLimit                          | The number of history revisions for the writer.                    | 10                          |
+| writer.type                                          | The type of deployment for the writer.                             | ClusterIP                   |
+| ctrl.labels                                          | Additional labels for the qryn-ctrl deployment.                    | []                          |
+| ctrl.podAnnotations                                  | Additional pod annotations for the ctrl deployment.                | []                          |
+| ctrl.nodeSelector                                    | Configure nodeSelector for ctrl deployment.                        | {}                          |       
+| ctrl.tolerations                                     | Configure tolerations for ctrl deployment.                         | []                          | 
+| ctrl.affinity                                        | Configure affinity for ctrl deployment.                            | {}                          | 
+| ctrl.enabled                                         | Whether to enable the qryn-ctrl deployment.                        | True                        |
+| ctrl.image.repository                                | The repository for the qryn-ctrl image.                            | qxip/qryn-ctrl              |
+| ctrl.imagePullPolicy                                 | Whether to pull the image for the qryn-ctrl.                       | IfNotPresent                |
+| ctrl.replicas                                        | The number of replica sets for the qryn-ctrl.                      | 1                           |
+| ctrl.revisionHistoryLimit                            | The number of history revisions for the qryn-ctrl.                 | 10                          |
+| ctrl.type                                            | The type of deployment for the qryn-ctrl.                          | ClusterIP                   |
+| keydb.enabled                                        | Whether to enable the keydb instance.                              | false                       |
+| keydb.persistence                                    | Whether to enable persistence for the keydb instance               | true                        |
+| keydb.livenessProbe                                  | The liveness probe configuration for the keydb instance            | { }                         |
+| keydb.readinessProbe                                 | The readiness probe configuration for the keydb instance           | { }                         |
+| keydb.initContainers                                 | The init containers configuration for the keydb instance           |                             |
+| **keydb.env.KEYDB_PASS**                             | The password for the keydb instance                                | XXXXX                       |
+| deleteWorker.enabled                                 | Whether to enable the delete worker component                      | false                       |
+| deleteWorker.podAnnotations                          | Additional pod annotations for the delete worker component         | []                          |
+| deleteWorker.image                                   | The image for the delete worker component                          |                             |
+| deleteWorker.imagePullPolicy                         | The image pull policy for the delete worker component              | IfNotPresent                |
+| deleteWorker.schedule                                | The schedule for the delete worker cronjob                         | "* * * * *"                 |
+| deleteWorker.nodeSelector                            | The node selector configuration for the delete worker component    | { }                         |
+| deleteWorker.tolerations                             | The tolerations configuration for the delete worker component      | [ ]                         |
+| deleteWorker.affinity                                | The affinity configuration for the delete worker component         | { }                         |
+| deleteWorker.resources                               | The resources configuration for the delete worker component        |                             |
