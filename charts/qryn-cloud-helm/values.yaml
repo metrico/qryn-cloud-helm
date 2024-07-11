@@ -44,7 +44,7 @@ reader:
     qrynHttpSettingsPort: 3200
   image:
     repository: qxip/qryn-go-cloud
-    tag: 1.2.91-beta.69
+    tag: 1.2.91-beta.71
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -169,7 +169,7 @@ deleteWorker:
   podAnnotations: []
   image:
     repository: qxip/qryn-deleter
-    tag: 1.2.91-beta.69
+    tag: 1.2.91-beta.71
   imagePullPolicy: IfNotPresent
   schedule: "* * * * *"
   nodeSelector: { }
